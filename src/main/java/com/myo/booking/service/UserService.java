@@ -57,10 +57,14 @@ public class UserService {
             new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
         
+        User user = (User) authentication.getPrincipal();
+        
+        if (!user.getEmailVerified()) {
+            throw new BusinessException("Please verify your email before logging in", HttpStatus.FORBIDDEN);
+        }
+        
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateJwtToken(authentication);
-        
-        User user = (User) authentication.getPrincipal();
         
         AuthResponse response = new AuthResponse();
         response.setToken(jwt);
